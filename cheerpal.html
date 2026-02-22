@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CheerPal — Real-Time Communication for Cheer Gyms</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink: #FF2D78;
+    --pink-light: #ff6ba8;
+    --pink-pale: #fff0f5;
+    --yellow: #FFD600;
+    --yellow-light: #fff8d6;
+    --purple: #7C3AED;
+    --purple-light: #ede9fe;
+    --navy: #0f172a;
+    --text: #1e293b;
+    --muted: #64748b;
+    --light: #f8fafc;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --radius-lg: 24px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; letter-spacing: 3px;
+    color: var(--pink);
+  }
+  .nav-logo span { color: var(--navy); }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted);
+    font-weight: 700; font-size: 0.9rem;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--pink); }
+  .nav-cta {
+    background: var(--pink); color: #fff !important;
+    border-radius: 30px; padding: 10px 24px !important;
+    transition: transform .2s, box-shadow .2s !important;
+  }
+  .nav-cta:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 20px #ff2d7840 !important; color: #fff !important; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #fff0f5 0%, #fff8d6 50%, #ede9fe 100%);
+    padding: 80px 5% 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🎀';
+    position: absolute; font-size: 200px; opacity: 0.06;
+    top: -40px; left: -40px; transform: rotate(-20deg);
+  }
+  .hero::after {
+    content: '📣';
+    position: absolute; font-size: 160px; opacity: 0.06;
+    bottom: -20px; right: -20px; transform: rotate(15deg);
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--pink); color: #fff;
+    border-radius: 30px; padding: 6px 18px;
+    font-size: 0.82rem; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 1; letter-spacing: 2px;
+    color: var(--navy); margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--pink); }
+  .hero-sub {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    color: var(--muted); font-weight: 600;
+    max-width: 620px; margin: 0 auto 36px;
+    line-height: 1.5;
+  }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--pink); color: #fff;
+    border: none; border-radius: 30px;
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: 1.05rem; padding: 16px 36px;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+    box-shadow: 0 6px 24px #ff2d7840;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px #ff2d7860; }
+  .btn-secondary {
+    background: var(--white); color: var(--navy);
+    border: 2px solid var(--border); border-radius: 30px;
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: 1.05rem; padding: 16px 36px;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+  }
+  .btn-secondary:hover { border-color: var(--pink); color: var(--pink); }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 48px;
+    margin-top: 52px; flex-wrap: wrap;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem; color: var(--pink); letter-spacing: 1px;
+  }
+  .hero-stat .lbl { font-size: 0.82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 80px 5%; }
+  .section-label {
+    display: inline-block;
+    font-size: 0.8rem; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: 1px; color: var(--navy);
+    line-height: 1.1; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1.05rem; color: var(--muted);
+    font-weight: 600; max-width: 560px;
+    line-height: 1.6;
+  }
+  .text-center { text-align: center; }
+  .text-center .section-sub { margin: 0 auto; }
+
+  /* ── HOW IT WORKS ── */
+  .how-bg { background: var(--light); }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px; margin-top: 48px;
+  }
+  .step-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    transition: all .3s;
+    position: relative;
+  }
+  .step-card:hover { border-color: var(--pink); transform: translateY(-4px); box-shadow: 0 12px 32px #ff2d7820; }
+  .step-num {
+    position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+    background: var(--pink); color: #fff;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
+    border-radius: 20px; padding: 4px 16px;
+  }
+  .step-icon { font-size: 2.8rem; margin: 12px 0 16px; }
+  .step-title { font-size: 1.1rem; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
+  .step-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; font-weight: 600; }
+
+  /* ── VIDEO ── */
+  .video-section { background: var(--navy); }
+  .video-section .section-title { color: var(--white); }
+  .video-section .section-sub { color: #94a3b8; }
+  .video-container {
+    margin-top: 48px;
+    max-width: 860px; margin-left: auto; margin-right: auto;
+    margin-top: 48px;
+  }
+  .video-frame {
+    position: relative;
+    background: #1e293b;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 2px solid #334155;
+    aspect-ratio: 16/9;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .video-placeholder {
+    text-align: center; color: #64748b;
+  }
+  .video-play-btn {
+    width: 80px; height: 80px;
+    background: var(--pink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 40px var(--pink);
+    transition: transform .2s;
+  }
+  .video-play-btn:hover { transform: scale(1.1); }
+  .video-play-btn svg { width: 32px; height: 32px; fill: #fff; margin-left: 4px; }
+  .video-placeholder p { font-size: 1rem; font-weight: 700; color: #94a3b8; }
+  .video-placeholder small { font-size: 0.82rem; color: #475569; }
+  .video-tabs {
+    display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .video-tab {
+    background: #1e293b; border: 2px solid #334155;
+    border-radius: 10px; padding: 10px 20px;
+    font-weight: 700; font-size: 0.85rem; color: #94a3b8;
+    cursor: pointer; transition: all .2s;
+  }
+  .video-tab.active { border-color: var(--pink); color: var(--pink); background: #ff2d7815; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; margin-top: 48px;
+  }
+  .feature-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    transition: all .3s;
+  }
+  .feature-card:hover { border-color: var(--pink); box-shadow: 0 8px 24px #ff2d7818; }
+  .feature-icon {
+    font-size: 2rem; margin-bottom: 16px;
+    background: var(--pink-pale); width: 56px; height: 56px;
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .feature-title { font-size: 1.05rem; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
+  .feature-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; font-weight: 600; }
+
+  /* ── PRICING ── */
+  .pricing-bg { background: linear-gradient(180deg, var(--pink-pale) 0%, var(--white) 100%); }
+  .billing-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    margin: 32px 0 0;
+  }
+  .billing-label { font-weight: 800; font-size: 0.9rem; color: var(--muted); }
+  .billing-label.active { color: var(--navy); }
+  .toggle-track {
+    width: 52px; height: 28px;
+    background: var(--pink); border-radius: 14px;
+    position: relative; cursor: pointer; transition: background .2s;
+  }
+  .toggle-thumb {
+    position: absolute; top: 4px; left: 4px;
+    width: 20px; height: 20px;
+    background: #fff; border-radius: 50%;
+    transition: transform .2s;
+  }
+  .toggle-track.annual .toggle-thumb { transform: translateX(24px); }
+  .save-badge {
+    background: var(--yellow); color: var(--navy);
+    border-radius: 20px; padding: 3px 10px;
+    font-size: 0.75rem; font-weight: 900;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px; margin-top: 40px; align-items: start;
+  }
+  .price-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    position: relative;
+    transition: all .3s;
+  }
+  .price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px #0f172a15; }
+  .price-card.popular {
+    border-color: var(--pink);
+    box-shadow: 0 8px 32px #ff2d7830;
+  }
+  .popular-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--pink); color: #fff;
+    border-radius: 20px; padding: 5px 18px;
+    font-size: 0.78rem; font-weight: 900; letter-spacing: 1px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .price-card.elite {
+    background: var(--navy);
+    border-color: var(--yellow);
+  }
+  .price-tier {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 2px;
+    color: var(--navy); margin-bottom: 4px;
+  }
+  .price-card.elite .price-tier { color: var(--yellow); }
+  .price-families { font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 20px; }
+  .price-card.elite .price-families { color: #64748b; }
+  .price-amount {
+    display: flex; align-items: flex-end; gap: 4px;
+    margin-bottom: 4px;
+  }
+  .price-dollar { font-size: 1.3rem; font-weight: 900; color: var(--pink); line-height: 1.8; }
+  .price-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem; color: var(--navy); line-height: 1;
+    letter-spacing: -1px;
+  }
+  .price-card.elite .price-num { color: var(--white); }
+  .price-period { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 24px; }
+  .price-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .price-card.elite .price-divider { background: #334155; }
+  .price-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .price-features li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.88rem; font-weight: 700; color: var(--text);
+    line-height: 1.4;
+  }
+  .price-card.elite .price-features li { color: #cbd5e1; }
+  .price-features li .check { color: var(--pink); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .price-features li.gold .check { color: var(--yellow); }
+  .price-btn {
+    width: 100%; padding: 14px;
+    border-radius: 12px; border: 2px solid var(--border);
+    background: transparent; color: var(--navy);
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: 1rem; cursor: pointer; transition: all .2s;
+    text-align: center; text-decoration: none; display: block;
+  }
+  .price-btn:hover { border-color: var(--pink); color: var(--pink); }
+  .price-btn.primary { background: var(--pink); border-color: var(--pink); color: #fff; }
+  .price-btn.primary:hover { background: #e0245e; }
+  .price-btn.gold { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
+  .price-btn.gold:hover { background: #e6c000; }
+  .annual-note { text-align: center; margin-top: 20px; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+
+  /* ── TESTIMONIALS ── */
+  .testi-bg { background: var(--light); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; margin-top: 48px;
+  }
+  .testi-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+  }
+  .testi-stars { color: var(--yellow); font-size: 1.1rem; margin-bottom: 14px; }
+  .testi-text { font-size: 0.95rem; color: var(--text); font-weight: 600; line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--pink-pale); border: 2px solid var(--pink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .testi-name { font-weight: 900; font-size: 0.9rem; color: var(--navy); }
+  .testi-role { font-size: 0.78rem; color: var(--muted); font-weight: 700; }
+
+  /* ── FAQ ── */
+  .faq-list { max-width: 720px; margin: 48px auto 0; display: flex; flex-direction: column; gap: 12px; }
+  .faq-item {
+    background: var(--white); border: 2px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .faq-q {
+    padding: 20px 24px;
+    font-weight: 900; font-size: 0.95rem; color: var(--navy);
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    user-select: none;
+  }
+  .faq-q:hover { color: var(--pink); }
+  .faq-arrow { font-size: 1.2rem; transition: transform .2s; color: var(--pink); }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-a {
+    max-height: 0; overflow: hidden; transition: max-height .3s ease;
+    padding: 0 24px; font-size: 0.9rem; color: var(--muted); font-weight: 600; line-height: 1.7;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
+
+  /* ── CTA BAND ── */
+  .cta-band {
+    background: var(--pink);
+    padding: 72px 5%;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-band::before {
+    content: '🏆🎀📣🔥⭐🎉';
+    position: absolute; font-size: 80px;
+    top: -20px; left: 0; right: 0;
+    opacity: 0.08; letter-spacing: 20px;
+    white-space: nowrap;
+  }
+  .cta-band h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    letter-spacing: 2px; color: #fff;
+    margin-bottom: 16px; position: relative;
+  }
+  .cta-band p { color: #ffd6e7; font-size: 1.1rem; font-weight: 700; margin-bottom: 36px; position: relative; }
+  .cta-band .btn-white {
+    background: #fff; color: var(--pink);
+    border: none; border-radius: 30px;
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: 1.1rem; padding: 18px 44px;
+    cursor: pointer; transition: all .2s;
+    text-decoration: none; display: inline-block;
+    position: relative;
+  }
+  .cta-band .btn-white:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.2); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    padding: 40px 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; letter-spacing: 3px; color: var(--pink);
+  }
+  .footer-logo span { color: #fff; }
+  .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+  .footer-links a { color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: color .2s; }
+  .footer-links a:hover { color: var(--pink); }
+  .footer-copy { color: #334155; font-size: 0.8rem; font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .hero-stats { gap: 28px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Cheer<span>Pal</span></div>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="#video">Demo</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#pricing" class="nav-cta">Get Started Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🎀 Built for Cheer & Gymnastics Gyms</div>
+  <h1>Connect Your <span>Entire Gym</span><br/>At Every Competition</h1>
+  <p class="hero-sub">Real-time alerts, rotation updates, and two-way messaging between directors and families — all on their phones, no app download needed.</p>
+  <div class="hero-btns">
+    <a href="#pricing" class="btn-primary">🚀 Start Free Trial</a>
+    <a href="#video" class="btn-secondary">▶ Watch Demo</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">8s</div><div class="lbl">Alert Delivery</div></div>
+    <div class="hero-stat"><div class="num">0</div><div class="lbl">App Downloads</div></div>
+    <div class="hero-stat"><div class="num">∞</div><div class="lbl">Teams per Gym</div></div>
+    <div class="hero-stat"><div class="num">100%</div><div class="lbl">Web-Based</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-bg" id="how">
+  <div class="text-center">
+    <span class="section-label">How It Works</span>
+    <h2 class="section-title">Up and Running in Minutes</h2>
+    <p class="section-sub">No IT setup. No app store. No training required. Just share a link and you're live.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">STEP 1</div>
+      <div class="step-icon">📋</div>
+      <div class="step-title">Set Up Your Gym</div>
+      <div class="step-desc">Add your team names — Elite, Senior, Junior, or whatever you use. Takes two minutes.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">STEP 2</div>
+      <div class="step-icon">🔗</div>
+      <div class="step-title">Share the Link</div>
+      <div class="step-desc">Send families one simple URL. They open it on any phone browser — no download, no login hassle.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">STEP 3</div>
+      <div class="step-icon">📡</div>
+      <div class="step-title">Director Goes Live</div>
+      <div class="step-desc">Open the broadcast controller at your competition. One screen controls everything.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">STEP 4</div>
+      <div class="step-icon">📱</div>
+      <div class="step-title">Families Stay Connected</div>
+      <div class="step-desc">Rotation alerts, shoutouts, and schedule changes appear instantly on every family's screen.</div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section class="video-section" id="video">
+  <div class="text-center">
+    <span class="section-label" style="color:#ff6ba8;">See It In Action</span>
+    <h2 class="section-title">Watch CheerPal Live</h2>
+    <p class="section-sub">See how a competition director manages 15 teams and 300 families from one screen.</p>
+  </div>
+  <div class="video-container">
+    <div class="video-frame" id="video-frame">
+      <div class="video-placeholder">
+        <div class="video-play-btn" onclick="playVideo()">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <p>CheerPal Full Demo</p>
+        <small>3 min walkthrough — controller + family screen</small>
+      </div>
+    </div>
+    <div class="video-tabs">
+      <button class="video-tab active" onclick="setTab(this, 'full')">📺 Full Demo</button>
+      <button class="video-tab" onclick="setTab(this, 'director')">🎛️ Director View</button>
+      <button class="video-tab" onclick="setTab(this, 'family')">👨‍👩‍👧 Family View</button>
+      <button class="video-tab" onclick="setTab(this, 'setup')">⚙️ Setup Guide</button>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="text-center">
+    <span class="section-label">Features</span>
+    <h2 class="section-title">Everything Your Gym Needs</h2>
+    <p class="section-sub">Built specifically for the chaos of competition day — not adapted from some generic app.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📣</div>
+      <div class="feature-title">Instant Broadcast Alerts</div>
+      <div class="feature-desc">Fire alerts to one team or all teams simultaneously. Delivered in under 8 seconds to every family screen.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎞️</div>
+      <div class="feature-title">Scrolling Ticker</div>
+      <div class="feature-desc">Send a message that scrolls across the bottom of every family's screen — hard to miss even in a loud arena.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Two-Way Messaging</div>
+      <div class="feature-desc">Families message the director directly. No more coaches being pulled aside mid-rotation by anxious parents.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <div class="feature-title">Rotation Alerts</div>
+      <div class="feature-desc">"Elite Team — you're on deck, Floor Zone 3." One tap. Every Elite family sees it immediately.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔥</div>
+      <div class="feature-title">Hype & Shoutouts</div>
+      <div class="feature-desc">Celebrate big moments. Fire a hype alert when your team nails a routine. Shoutout individual athletes by name.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎵</div>
+      <div class="feature-title">Sound Notifications</div>
+      <div class="feature-desc">Optional crowd cheer burst plays on family phones when a new alert arrives. They won't miss a thing.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏷️</div>
+      <div class="feature-title">White Label (Elite)</div>
+      <div class="feature-desc">Your gym name, your colors, your brand throughout the entire app. Families see your gym — not CheerPal.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <div class="feature-title">No App Download</div>
+      <div class="feature-desc">Families open a link in any browser. Works on every iPhone and Android. Zero friction, zero support calls.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">♾️</div>
+      <div class="feature-title">Unlimited Teams</div>
+      <div class="feature-desc">5 teams or 50 teams — add as many as you need. Each team gets its own channel, alerts stay organized.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-bg" id="pricing">
+  <div class="text-center">
+    <span class="section-label">Pricing</span>
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-sub">No setup fees. No contracts. Cancel anytime. Upgrade as your gym grows.</p>
+  </div>
+
+  <div class="billing-toggle">
+    <span class="billing-label active" id="monthly-label">Monthly</span>
+    <div class="toggle-track" id="billing-toggle" onclick="toggleBilling()">
+      <div class="toggle-thumb"></div>
+    </div>
+    <span class="billing-label" id="annual-label">Annual</span>
+    <span class="save-badge">Save 2 Months</span>
+  </div>
+
+  <div class="pricing-grid">
+
+    <!-- Starter -->
+    <div class="price-card">
+      <div class="price-tier">Starter</div>
+      <div class="price-families">Up to 50 families</div>
+      <div class="price-amount">
+        <span class="price-dollar">$</span>
+        <span class="price-num" id="price-starter">19</span>
+      </div>
+      <div class="price-period" id="period-starter">/month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li><span class="check">✓</span>Up to 50 family accounts</li>
+        <li><span class="check">✓</span>Unlimited teams</li>
+        <li><span class="check">✓</span>Broadcast alerts & ticker</li>
+        <li><span class="check">✓</span>Two-way family messaging</li>
+        <li><span class="check">✓</span>Sound notifications</li>
+        <li><span class="check">✓</span>CheerPal branding</li>
+      </ul>
+      <a href="#" class="price-btn">Get Started</a>
+    </div>
+
+    <!-- Growth -->
+    <div class="price-card popular">
+      <div class="popular-badge">⭐ Most Popular</div>
+      <div class="price-tier">Growth</div>
+      <div class="price-families">Up to 150 families</div>
+      <div class="price-amount">
+        <span class="price-dollar">$</span>
+        <span class="price-num" id="price-growth">39</span>
+      </div>
+      <div class="price-period" id="period-growth">/month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li><span class="check">✓</span>Up to 150 family accounts</li>
+        <li><span class="check">✓</span>Everything in Starter</li>
+        <li><span class="check">✓</span>Priority alert delivery</li>
+        <li><span class="check">✓</span>Message history & logs</li>
+        <li><span class="check">✓</span>Competition mode</li>
+        <li><span class="check">✓</span>Email support</li>
+      </ul>
+      <a href="#" class="price-btn primary">Get Started</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="price-card">
+      <div class="price-tier">Pro</div>
+      <div class="price-families">Up to 400 families</div>
+      <div class="price-amount">
+        <span class="price-dollar">$</span>
+        <span class="price-num" id="price-pro">69</span>
+      </div>
+      <div class="price-period" id="period-pro">/month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li><span class="check">✓</span>Up to 400 family accounts</li>
+        <li><span class="check">✓</span>Everything in Growth</li>
+        <li><span class="check">✓</span>Multi-location support</li>
+        <li><span class="check">✓</span>Custom quick messages</li>
+        <li><span class="check">✓</span>Usage analytics</li>
+        <li><span class="check">✓</span>Phone & email support</li>
+      </ul>
+      <a href="#" class="price-btn">Get Started</a>
+    </div>
+
+    <!-- Elite -->
+    <div class="price-card elite">
+      <div class="price-tier">Elite</div>
+      <div class="price-families" style="color:#94a3b8;">Unlimited families</div>
+      <div class="price-amount">
+        <span class="price-dollar" style="color:var(--yellow);">$</span>
+        <span class="price-num" style="color:var(--white);" id="price-elite">99</span>
+      </div>
+      <div class="price-period" id="period-elite" style="color:#64748b;">/month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li class="gold"><span class="check">✓</span>Unlimited family accounts</li>
+        <li class="gold"><span class="check">✓</span>Everything in Pro</li>
+        <li class="gold"><span class="check">✓</span><strong style="color:#fff;">Full white label</strong> — your gym brand</li>
+        <li class="gold"><span class="check">✓</span>Custom colors & logo</li>
+        <li class="gold"><span class="check">✓</span>Dedicated onboarding call</li>
+        <li class="gold"><span class="check">✓</span>Priority 24/7 support</li>
+      </ul>
+      <a href="#" class="price-btn gold">Contact Us</a>
+    </div>
+
+  </div>
+  <div class="annual-note" id="annual-note" style="display:none;">🎉 Annual pricing shown — save 2 months vs monthly billing</div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-bg">
+  <div class="text-center">
+    <span class="section-label">Loved by Gym Directors</span>
+    <h2 class="section-title">What Gyms Are Saying</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"We used to spend the whole competition answering texts from parents asking where their kid was. CheerPal ended that completely. One tap and 200 families know exactly what's happening."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👩</div>
+        <div><div class="testi-name">Sarah M.</div><div class="testi-role">Director, Elite Cheer Academy — Texas</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The scrolling ticker during awards was a game changer. Parents knew scores before they could even find the scoreboard. Our families absolutely love it."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👨</div>
+        <div><div class="testi-name">Coach Derek R.</div><div class="testi-role">Head Coach, Florida Star Gymnastics</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"I was skeptical a web app could replace our Band groups. After one competition we never went back. Setup was 10 minutes and our parents figured it out without any instructions."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👩</div>
+        <div><div class="testi-name">Jennifer K.</div><div class="testi-role">Owner, Champions Cheer & Tumbling</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="text-center">
+    <span class="section-label">FAQ</span>
+    <h2 class="section-title">Common Questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do families need to download an app? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">No. Families open one link in any phone browser — Chrome, Safari, anything. There's nothing to download, no account to create on the Starter plan. They bookmark the link and they're ready for every competition.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How is this different from Band? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Band is a group chat where everyone talks at once — it becomes chaos at competitions. CheerPal puts the director in control. Alerts flow from the director down to families, and families can message up to the director. It's a broadcast tool, not a chat room. No more buried messages in a noisy feed.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How many teams can we add? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Unlimited on all plans. Whether you have 3 teams or 30, you can add as many as you need. Each team gets its own channel so alerts stay organized. The director can broadcast to one team or all teams with one tap.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What does white label mean on the Elite plan? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Your families see your gym's name, logo, and colors throughout the app — not the CheerPal brand. The app feels like it was built specifically for your gym. This is ideal for larger gyms that want to reinforce their brand identity with their families.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I use it outside of competitions? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Absolutely. Many gyms use CheerPal year-round for practice schedule changes, uniform deadlines, fundraiser announcements, and general gym communications. The family link stays live 24/7 — it's not just a competition day tool.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is there a setup fee or contract? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">No setup fee, no contract, no commitment. You can cancel anytime. Annual plans give you 2 months free but are entirely optional. We want you to stay because CheerPal works — not because you're locked in.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Ready to End Competition Day Chaos?</h2>
+  <p>Join gyms across Texas and Florida already using CheerPal</p>
+  <a href="#pricing" class="btn-white">🚀 Start Your Free Trial</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Cheer<span>Pal</span></div>
+  <div class="footer-links">
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#features">Features</a>
+    <a href="mailto:hello@cheerpal.app">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 CheerPal · Peak Financial Group LLC</div>
+</footer>
+
+<script>
+  // ── BILLING TOGGLE ──
+  let isAnnual = false;
+  const prices = {
+    starter: { monthly: 19, annual: 16 },
+    growth:  { monthly: 39, annual: 33 },
+    pro:     { monthly: 69, annual: 57 },
+    elite:   { monthly: 99, annual: 82 }
+  };
+
+  function toggleBilling() {
+    isAnnual = !isAnnual;
+    const track = document.getElementById('billing-toggle');
+    track.classList.toggle('annual', isAnnual);
+    document.getElementById('monthly-label').classList.toggle('active', !isAnnual);
+    document.getElementById('annual-label').classList.toggle('active', isAnnual);
+    document.getElementById('annual-note').style.display = isAnnual ? 'block' : 'none';
+
+    Object.entries(prices).forEach(([tier, p]) => {
+      const el = document.getElementById(`price-${tier}`);
+      const pe = document.getElementById(`period-${tier}`);
+      if (el) el.textContent = isAnnual ? p.annual : p.monthly;
+      if (pe) pe.textContent = isAnnual ? '/month, billed annually' : '/month';
+    });
+  }
+
+  // ── FAQ ──
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // ── VIDEO TABS ──
+  function setTab(btn, type) {
+    document.querySelectorAll('.video-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const labels = {
+      full: { title: 'CheerPal Full Demo', sub: '3 min walkthrough — controller + family screen' },
+      director: { title: 'Director / Controller Walkthrough', sub: '2 min — broadcast controls, team management' },
+      family: { title: 'Family Screen Walkthrough', sub: '1 min — what parents see on their phones' },
+      setup: { title: 'Setup Guide', sub: '5 min — from zero to live at your gym' }
+    };
+    const frame = document.getElementById('video-frame');
+    frame.querySelector('p').textContent = labels[type].title;
+    frame.querySelector('small').textContent = labels[type].sub;
+  }
+
+  function playVideo() {
+    // Replace src with real YouTube embed URL when video is ready
+    const frame = document.getElementById('video-frame');
+    frame.innerHTML = `<div style="color:#64748b;text-align:center;padding:60px 20px;">
+      <div style="font-size:3rem;margin-bottom:16px;">🎬</div>
+      <div style="font-weight:700;color:#94a3b8;">Tutorial video coming soon</div>
+      <div style="font-size:0.85rem;margin-top:8px;">Replace this with your YouTube embed URL</div>
+    </div>`;
+    // When ready: frame.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen style="border-radius:14px;"></iframe>';
+  }
+</script>
+</body>
+</html>
